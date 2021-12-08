@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.12;
 
-
-import './Ownable.sol';
-import './Pausable.sol';
-import './library/SafeERC20.sol';
-import './library/SafeMath.sol';
-import './interface/IERC20.sol';
-import './interface/IAnnexFarm.sol';
-
+import "./Ownable.sol";
+import "./Pausable.sol";
+import "./library/SafeERC20.sol";
+import "./library/SafeMath.sol";
+import "./interface/IERC20.sol";
+import "./interface/IAnnexFarm.sol";
 
 contract ANNVault is Ownable, Pausable {
     using SafeERC20 for IERC20;
@@ -32,7 +30,6 @@ contract ANNVault is Ownable, Pausable {
     uint256 public lastHarvestedTime;
     address public admin;
     address public treasury;
-    
 
     uint256 public constant MAX_PERFORMANCE_FEE = 500; // 5%
     uint256 public constant MAX_CALL_FEE = 100; // 1%
@@ -44,9 +41,18 @@ contract ANNVault is Ownable, Pausable {
     uint256 public withdrawFee = 10; // 0.1%
     uint256 public withdrawFeePeriod = 72 hours; // 3 days
 
-    event Deposit(address indexed sender, uint256 amount, uint256 shares, uint256 lastDepositedTime);
+    event Deposit(
+        address indexed sender,
+        uint256 amount,
+        uint256 shares,
+        uint256 lastDepositedTime
+    );
     event Withdraw(address indexed sender, uint256 amount, uint256 shares);
-    event Harvest(address indexed sender, uint256 performanceFee, uint256 callFee);
+    event Harvest(
+        address indexed sender,
+        uint256 performanceFee,
+        uint256 callFee
+    );
     event Pause();
     event Unpause();
 
@@ -112,7 +118,9 @@ contract ANNVault is Ownable, Pausable {
 
         totalShares = totalShares.add(currentShares);
 
-        user.ANNAtLastUserAction = user.shares.mul(balanceOf()).div(totalShares);
+        user.ANNAtLastUserAction = user.shares.mul(balanceOf()).div(
+            totalShares
+        );
         user.lastUserActionTime = block.timestamp;
 
         _earn();
@@ -132,7 +140,7 @@ contract ANNVault is Ownable, Pausable {
      * @dev Only possible when contract not paused.
      */
     function harvest() external notContract whenNotPaused {
-        IAnnexFarm(annexFarm).withdraw(annAutoVaultPoolId,0);
+        IAnnexFarm(annexFarm).withdraw(annAutoVaultPoolId, 0);
 
         uint256 bal = available();
         uint256 currentPerformanceFee = bal.mul(performanceFee).div(10000);
@@ -171,7 +179,10 @@ contract ANNVault is Ownable, Pausable {
      * @dev Only callable by the contract admin.
      */
     function setPerformanceFee(uint256 _performanceFee) external onlyAdmin {
-        require(_performanceFee <= MAX_PERFORMANCE_FEE, "performanceFee cannot be more than MAX_PERFORMANCE_FEE");
+        require(
+            _performanceFee <= MAX_PERFORMANCE_FEE,
+            "performanceFee cannot be more than MAX_PERFORMANCE_FEE"
+        );
         performanceFee = _performanceFee;
     }
 
@@ -180,7 +191,10 @@ contract ANNVault is Ownable, Pausable {
      * @dev Only callable by the contract admin.
      */
     function setCallFee(uint256 _callFee) external onlyAdmin {
-        require(_callFee <= MAX_CALL_FEE, "callFee cannot be more than MAX_CALL_FEE");
+        require(
+            _callFee <= MAX_CALL_FEE,
+            "callFee cannot be more than MAX_CALL_FEE"
+        );
         callFee = _callFee;
     }
 
@@ -189,7 +203,10 @@ contract ANNVault is Ownable, Pausable {
      * @dev Only callable by the contract admin.
      */
     function setWithdrawFee(uint256 _withdrawFee) external onlyAdmin {
-        require(_withdrawFee <= MAX_WITHDRAW_FEE, "withdrawFee cannot be more than MAX_WITHDRAW_FEE");
+        require(
+            _withdrawFee <= MAX_WITHDRAW_FEE,
+            "withdrawFee cannot be more than MAX_WITHDRAW_FEE"
+        );
         withdrawFee = _withdrawFee;
     }
 
@@ -197,7 +214,10 @@ contract ANNVault is Ownable, Pausable {
      * @notice Sets withdraw fee period
      * @dev Only callable by the contract admin.
      */
-    function setWithdrawFeePeriod(uint256 _withdrawFeePeriod) external onlyAdmin {
+    function setWithdrawFeePeriod(uint256 _withdrawFeePeriod)
+        external
+        onlyAdmin
+    {
         require(
             _withdrawFeePeriod <= MAX_WITHDRAW_FEE_PERIOD,
             "withdrawFeePeriod cannot be more than MAX_WITHDRAW_FEE_PERIOD"
@@ -217,7 +237,10 @@ contract ANNVault is Ownable, Pausable {
      * @notice Withdraw unexpected tokens sent to the ANN Vault
      */
     function inCaseTokensGetStuck(address _token) external onlyAdmin {
-        require(_token != address(token), "Token cannot be same as deposit token");
+        require(
+            _token != address(token),
+            "Token cannot be same as deposit token"
+        );
 
         uint256 amount = IERC20(_token).balanceOf(address(this));
         IERC20(_token).safeTransfer(msg.sender, amount);
@@ -246,7 +269,10 @@ contract ANNVault is Ownable, Pausable {
      * @return Expected reward to collect in ANN
      */
     function calculateHarvestANNRewards() external view returns (uint256) {
-        uint256 amount = IAnnexFarm(annexFarm).pendingAnnex(annAutoVaultPoolId, address(this));
+        uint256 amount = IAnnexFarm(annexFarm).pendingAnnex(
+            annAutoVaultPoolId,
+            address(this)
+        );
         amount = amount.add(available());
         uint256 currentCallFee = amount.mul(callFee).div(10000);
 
@@ -258,7 +284,10 @@ contract ANNVault is Ownable, Pausable {
      * @return Returns total pending ANN rewards
      */
     function calculateTotalPendingANNRewards() external view returns (uint256) {
-        uint256 amount = IAnnexFarm(annexFarm).pendingAnnex(annAutoVaultPoolId, address(this));
+        uint256 amount = IAnnexFarm(annexFarm).pendingAnnex(
+            annAutoVaultPoolId,
+            address(this)
+        );
         amount = amount.add(available());
 
         return amount;
@@ -287,7 +316,7 @@ contract ANNVault is Ownable, Pausable {
         uint256 bal = available();
         if (bal < currentAmount) {
             uint256 balWithdraw = currentAmount.sub(bal);
-            IAnnexFarm(annexFarm).withdraw(annAutoVaultPoolId,balWithdraw);
+            IAnnexFarm(annexFarm).withdraw(annAutoVaultPoolId, balWithdraw);
             uint256 balAfter = available();
             uint256 diff = balAfter.sub(bal);
             if (diff < balWithdraw) {
@@ -296,13 +325,17 @@ contract ANNVault is Ownable, Pausable {
         }
 
         if (block.timestamp < user.lastDepositedTime.add(withdrawFeePeriod)) {
-            uint256 currentWithdrawFee = currentAmount.mul(withdrawFee).div(10000);
+            uint256 currentWithdrawFee = currentAmount.mul(withdrawFee).div(
+                10000
+            );
             token.safeTransfer(treasury, currentWithdrawFee);
             currentAmount = currentAmount.sub(currentWithdrawFee);
         }
 
         if (user.shares > 0) {
-            user.ANNAtLastUserAction = user.shares.mul(balanceOf()).div(totalShares);
+            user.ANNAtLastUserAction = user.shares.mul(balanceOf()).div(
+                totalShares
+            );
         } else {
             user.ANNAtLastUserAction = 0;
         }
@@ -327,7 +360,10 @@ contract ANNVault is Ownable, Pausable {
      * @dev It includes tokens held by the contract and held in AnnexFarm
      */
     function balanceOf() public view returns (uint256) {
-        (uint256 amount, ) = IAnnexFarm(annexFarm).userInfo(annAutoVaultPoolId, address(this));
+        (uint256 amount, ) = IAnnexFarm(annexFarm).userInfo(
+            annAutoVaultPoolId,
+            address(this)
+        );
         return token.balanceOf(address(this)).add(amount);
     }
 
@@ -337,7 +373,7 @@ contract ANNVault is Ownable, Pausable {
     function _earn() internal {
         uint256 bal = available();
         if (bal > 0) {
-            IAnnexFarm(annexFarm).deposit(annAutoVaultPoolId,bal);
+            IAnnexFarm(annexFarm).deposit(annAutoVaultPoolId, bal);
         }
     }
 
@@ -357,7 +393,10 @@ contract ANNVault is Ownable, Pausable {
      * @notice Sets Auto Vault Pool Id
      * @dev Only callable by the contract owner.
      */
-    function setAutoVaultPoolId(uint256 _annAutoVaultPoolId) external onlyOwner {
+    function setAutoVaultPoolId(uint256 _annAutoVaultPoolId)
+        external
+        onlyOwner
+    {
         annAutoVaultPoolId = _annAutoVaultPoolId;
     }
 }
