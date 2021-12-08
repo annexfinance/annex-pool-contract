@@ -1,32 +1,29 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
+require("dotenv").config();
 
-var INFURA_KEY = "4913daa7178a4c77823ddea002c39d00";
-const mnemonic = "";
+const INFURA_KEY = process.env.INFURA_KEY;
+const PK = process.env.PK;
+const ETHERSCAN_APIKEY = process.env.ETHERSCAN_APIKEY;
 
 module.exports = {
   defaultNetwork: "bsctestnet",
   networks: {
-    hardhat: {
+    hardhat: {},
+    bsc: {
+      accounts: [PK],
+      url: `https://bsc-dataseed.binance.org/`,
+      chainId: 56,
     },
     bsctestnet: {
+      accounts: [PK],
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
-      gasPrice: 20000000000,
-      accounts: [""]
     },
-    bscmainnet: {
-      url: "https://bsc-dataseed.binance.org/",
-      chainId: 56,
-      gasPrice: 20000000000,
-      // accounts: { mnemonic: mnemonic }
-      // accounts: [""]
-    }
   },
   etherscan: {
     // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
-    apiKey: "UN1PB9XKIN1QGIGI9XH1G1KRB4GSSBM5V3"
+    apiKey: ETHERSCAN_APIKEY,
   },
   solidity: {
     compilers: [
@@ -35,19 +32,19 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200
-          }
-        }
-      }
+            runs: 200,
+          },
+        },
+      },
     ],
   },
   paths: {
     sources: "./contracts",
     tests: "./test",
     cache: "./cache",
-    artifacts: "./artifacts"
+    artifacts: "./artifacts",
   },
   mocha: {
-    timeout: 20000
-  }
-}
+    timeout: 200,
+  },
+};
