@@ -13,7 +13,7 @@ module.exports = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: ["a4f96c04ed56df73a0f1b36bcdac8b479f75d08459817435e3b2b95c8d49724c"]
+      accounts: [""]
     },
     bscmainnet: {
       url: "https://bsc-dataseed.binance.org/",
