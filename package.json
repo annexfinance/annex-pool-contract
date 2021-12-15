@@ -20,7 +20,12 @@
     "hardhat": "^2.6.5"
   },
   "dependencies": {
+    "big-number": "^2.0.0",
+    "chai-bn": "^0.3.0",
     "dotenv": "^10.0.0",
+    "hardhat-contract-sizer": "^2.1.1",
+    "hardhat-deploy": "^0.9.14",
+    "hardhat-watcher": "^2.1.1",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint-plugin-prettier": "0.0.5"
